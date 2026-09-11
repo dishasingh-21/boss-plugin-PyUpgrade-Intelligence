@@ -15,9 +15,10 @@ def test_builds_graph_from_real_directory(tmp_path):
 
     graph = build_graph_from_directory("testapp", "1.0", str(tmp_path))
 
-    assert "models.Model.save" in graph.nodes
-    assert "views.create_user" in graph.nodes
-    assert any(e.type == "calls" and e.to_id == "models.Model.save" for e in graph.edges)
+    root_name = tmp_path.name
+    assert f"{root_name}.models.Model.save" in graph.nodes
+    assert f"{root_name}.views.create_user" in graph.nodes
+    assert any(e.type == "calls" and e.to_id == f"{root_name}.models.Model.save" for e in graph.edges)
 
 
 def test_inheritance_edge_detected(tmp_path):
@@ -26,7 +27,8 @@ def test_inheritance_edge_detected(tmp_path):
 
     graph = build_graph_from_directory("testapp", "1.0", str(tmp_path))
 
-    assert any(e.type == "inherits" and e.to_id == "base.Base" for e in graph.edges)
+    root_name = tmp_path.name
+    assert any(e.type == "inherits" and e.to_id == f"{root_name}.base.Base" for e in graph.edges)
 
 
 def test_save_and_load_graph_roundtrip(tmp_path):

@@ -11,7 +11,7 @@ def _module_prefix_from_path(file_path: Path, root: Path) -> str:
     else:
         parts[-1] = parts[-1][:-3]
 
-    return ".".join(parts)
+    return ".".join([root.name]+parts) if parts else root.name
 
 def build_graph_from_directory(framework: str, version: str, root_dir: str) -> Graph:
     root = Path(root_dir)
