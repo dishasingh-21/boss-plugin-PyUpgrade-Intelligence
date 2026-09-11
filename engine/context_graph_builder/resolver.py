@@ -54,7 +54,10 @@ class _CallAndImportResolver(ast.NodeVisitor):
         for alias in node.names:
             imported_name = alias.name
             local_name = alias.asname or imported_name
-            qualified_id = f"{module}.{imported_name}"
+            if imported_name in self.short_name_table:
+                qualified_id = self.short_name_table[imported_name]
+            else:
+                qualified_id = f"{module}.{imported_name}"
             self.local_aliases[local_name] = qualified_id
             self.edges.append(Edge(from_id=self.module_prefix, to_id=qualified_id, type="imports"))
         self.generic_visit(node)
@@ -63,11 +66,15 @@ class _CallAndImportResolver(ast.NodeVisitor):
         for alias in node.names:
             if alias.asname:
                 local_name=alias.asname
-                qualified_id=alias.name
+                raw_target=alias.name
             else:
                 local_name=alias.name.split(".")[0]
-                qualified_id=alias.name
-
+                raw_target=alias.name
+            top_name = raw_target.split(".")[-1]
+            if top_name in self.short_name_table:
+                qualified_id = self.short_name_table[top_name]
+            else:
+                qualified_id = raw_target
             self.local_aliases[local_name]=qualified_id
             self.edges.append(Edge(from_id=self.module_prefix, to_id=qualified_id, type="imports"))
         self.generic_visit(node)
