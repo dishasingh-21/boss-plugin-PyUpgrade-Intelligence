@@ -84,7 +84,10 @@ class NodeExtractor(ast.NodeVisitor):
 
 def extract_from_source(source: str, file_path: str, module_prefix: str) -> dict[str, Node]:
     """Entry point: parse source text and return extracted Nodes."""
-    tree = ast.parse(source)
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as e:
+        raise SyntaxError(f"{file_path}: {e.msg} (line {e.lineno})") from e
     extractor = NodeExtractor(file_path, module_prefix)
     extractor.visit(tree)
     return extractor.nodes
