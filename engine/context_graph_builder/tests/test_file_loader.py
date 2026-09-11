@@ -20,7 +20,6 @@ def test_builds_graph_from_real_directory(tmp_path):
     assert f"{root_name}.views.create_user" in graph.nodes
     assert any(e.type == "calls" and e.to_id == f"{root_name}.models.Model.save" for e in graph.edges)
 
-
 def test_inheritance_edge_detected(tmp_path):
     (tmp_path / "base.py").write_text("class Base:\n    pass\n")
     (tmp_path / "child.py").write_text("from base import Base\n\nclass Child(Base):\n    pass\n")
