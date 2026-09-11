@@ -10,3 +10,5 @@ build/
 .DS_Store
 Thumbs.db
 .env
+test1.py
+test_django.py
