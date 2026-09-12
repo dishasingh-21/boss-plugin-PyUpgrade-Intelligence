@@ -15,9 +15,13 @@ class Node:
     name: str
     file: str                                                   #relative file path where its defined
     line: int                                                   #Line number in that file
+    line_end: int = 0
     signature: str = ""
     params: list[Param] = field(default_factory=list)
     is_public: bool = True                                      #False for names starting with '_'
+    body_hash: str=""
+    is_async: bool = False
+    is_property: bool = False
 
 @dataclass
 class Edge:

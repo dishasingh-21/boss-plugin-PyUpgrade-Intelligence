@@ -1,4 +1,5 @@
 import ast
+import hashlib
 from contracts.graph import Node, Param
 
 class NodeExtractor(ast.NodeVisitor):
@@ -10,6 +11,10 @@ class NodeExtractor(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node:ast.FunctionDef):
         self._extract_function(node)
+        self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        self._extract_function(node, is_async=True)
         self.generic_visit(node)
 
     def visit_ClassDef(self, node:ast.ClassDef):
@@ -28,20 +33,26 @@ class NodeExtractor(ast.NodeVisitor):
         self.generic_visit(node)
         self._class_stack.pop()
 
-    def _extract_function(self, node: ast.FunctionDef):
+    def _extract_function(self, node, is_async: bool = False):
         qualified_name = self._build_id(node.name)
         node_type = "Method" if self._class_stack else "Function"
         params = self._extract_params(node.args)
         signature = self._build_signature(node.name, params)
+        body_hash = self._hash_body(node)
+        is_property = self._has_property_decorator(node.decorator_list)
         self.nodes[qualified_name] = Node(
             id=qualified_name,
             type=node_type,
             name=node.name,
             file=self.file_path,
             line=node.lineno,
+            line_end=getattr(node, "end_lineno", node.lineno),
             signature=signature,
             params=params,
             is_public=not node.name.startswith("_"),
+            body_hash=body_hash,
+            is_async=is_async,
+            is_property=is_property,
         )
 
     def _extract_params(self, args: ast.arguments) -> list[Param]:
@@ -81,6 +92,17 @@ class NodeExtractor(ast.NodeVisitor):
         if isinstance(node, ast.Attribute):
             return ast.unparse(node)
         return ast.unparse(node)
+
+    def _hash_body(self, node) -> str:
+        body_dump = ast.dump(ast.Module(body=node.body, type_ignores=[]))
+        return hashlib.sha256(body_dump.encode()).hexdigest()[:16]
+
+    def _has_property_decorator(self, decorator_list: list[ast.expr]) -> bool:
+        for dec in decorator_list:
+            name = ast.unparse(dec)
+            if name == "property" or name.endswith(".property") or "cached_property" in name:
+                return True
+        return False
 
 def extract_from_source(source: str, file_path: str, module_prefix: str) -> dict[str, Node]:
     """Entry point: parse source text and return extracted Nodes."""
