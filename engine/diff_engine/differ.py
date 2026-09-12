@@ -65,6 +65,8 @@ def _diff_signature(node_a: Node, node_b: Node) -> Change | None:
             detail_parts.append(f"Changed from {direction}. Callers must update await usage")
         if old_names != new_names:
             detail_parts.append(f"parameters changes from ({', '.join(old_names)}) to ({', '.join(new_names)})")
+        elif node_a.type == "Class" and sig_differs:
+            detail_parts.append(f"base classes changed: {node_a.signature} -> {node_b.signature}")
         elif sig_differs:
             for pa, pb in zip(node_a.params, node_b.params):
                 if pa.default != pb.default:

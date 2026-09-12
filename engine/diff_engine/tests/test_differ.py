@@ -85,3 +85,13 @@ def test_moved_symbol_with_also_changed_signature():
     result = diff(graph_a, graph_b)
     assert result.changes[0].change_type == ChangeType.MOVED
     assert "also changed" in result.changes[0].detail.lower()
+
+def test_class_base_change_produces_meaningful_detail():
+    old_node = _node("x.BoundField", type_="Class", signature="class BoundField(object)")
+    new_node = _node("x.BoundField", type_="Class", signature="class BoundField(RenderableFieldMixin)")
+    graph_a = Graph(framework="test", version="1.0", nodes={"x.BoundField": old_node})
+    graph_b = Graph(framework="test", version="2.0", nodes={"x.BoundField": new_node})
+    result = diff(graph_a, graph_b)
+    assert result.changes[0].change_type == ChangeType.SIGNATURE_CHANGED
+    assert "base classes changed" in result.changes[0].detail
+    assert "RenderableFieldMixin" in result.changes[0].detail
