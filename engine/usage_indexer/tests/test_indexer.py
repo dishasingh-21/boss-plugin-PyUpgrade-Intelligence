@@ -65,6 +65,27 @@ def test_resolves_usage_through_public_reexport_alias(tmp_path):
 
     index = build_usage_index(str(tmp_path), graph)
 
-    # the usage should be recorded under the CANONICAL id, not the alias
+    # the usage should be recorded under the resolved id, not the alias
     assert "pkg.base.Model" in index.usages
     assert "pkg.models.Model" not in index.usages
+
+def test_class_instantiation_recorded_as_init_usage():
+    graph = Graph(framework="test", version="1.0", nodes={
+        "pkg.mod.Paginator": Node(id="pkg.mod.Paginator", type="Class", name="Paginator", file="mod.py", line=1),
+        "pkg.mod.Paginator.__init__": Node(id="pkg.mod.Paginator.__init__", type="Method", name="__init__", file="mod.py", line=2),
+    })
+
+    def write_source(tmp_path):
+        (tmp_path / "app.py").write_text(
+            "from pkg.mod import Paginator\n\ndef paginate(items):\n    return Paginator(items, per_page=10)\n"
+        )
+
+    import tempfile
+    from pathlib import Path
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        write_source(tmp_path)
+        index = build_usage_index(str(tmp_path), graph)
+
+    assert "pkg.mod.Paginator.__init__" in index.usages
+    assert "pkg.mod.Paginator" in index.usages

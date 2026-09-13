@@ -21,16 +21,17 @@ def build_usage_index(repo_path: str, framework_graph: Graph) -> UsageIndex:
             print(f"Skipping {py_file}: {e}")
             continue
 
-        visitor = _UsageVisitor(file_path=str(py_file), framework_ids=framework_ids, alias_map=alias_map)
+        visitor = _UsageVisitor(file_path=str(py_file), framework_graph=framework_graph, alias_map=alias_map)
         visitor.visit(tree)
         for symbol_id, usages in visitor.usages.items():
             combined[symbol_id].extend(usages)
     return UsageIndex(repo_path=repo_path, usages=dict(combined))
 
 class _UsageVisitor(ast.NodeVisitor):
-    def __init__(self, file_path: str, framework_ids: set[str], alias_map: dict[str, str]):
+    def __init__(self, file_path: str, framework_graph: Graph, alias_map: dict[str, str]):
         self.file_path = file_path
-        self.framework_ids = framework_ids
+        self.framework_graph = framework_graph
+        self.framework_ids = set(framework_graph.nodes.keys())
         self.alias_map = alias_map
         self.local_aliases: dict[str,str] = {}
         self.usages: dict[str, list[Usage]] =defaultdict(list)
@@ -53,25 +54,35 @@ class _UsageVisitor(ast.NodeVisitor):
 
     def visit_ClassDef(self, node: ast.ClassDef):
         for base in node.bases:
-            self._record_if_match(base, node.lineno)
+            self._record_if_match(base, node.lineno, is_call=False)
         self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call):
-        self._record_if_match(node.func, node.lineno)
+        self._record_if_match(node.func, node.lineno, is_call = True)
         self.generic_visit(node)
 
-    def _record_if_match(self, expr: ast.expr, lineno: int):
+    def _record_if_match(self, expr: ast.expr, lineno: int, is_call: bool):
         parts = _dotted_chain(expr)
         if not parts:
             return
         candidate = _resolve_candidate_id(parts, self.local_aliases)
         if not candidate:
             return
+        resolved_id = None
         if candidate in self.framework_ids:
-            self.usages[candidate].append(Usage(file=self.file_path, line=lineno))
+            resolved_id = candidate
         elif candidate in self.alias_map:
-            canonical_id = self.alias_map[candidate]
-            self.usages[canonical_id].append(Usage(file=self.file_path, line=lineno))
+            resolved_id = self.alias_map[candidate]
+
+        if not resolved_id:
+            return
+        self.usages[resolved_id].append(Usage(file=self.file_path, line=lineno))
+        if is_call:
+            node_obj = self.framework_graph.nodes.get(resolved_id)
+            if node_obj and node_obj.type == "Class":
+                init_id = f"{resolved_id}.__init__"
+                if init_id in self.framework_ids:
+                    self.usages[init_id].append(Usage(file=self.file_path, line=lineno))
 
 def _dotted_chain(node: ast.expr) -> list[str] | None:
     parts = []
