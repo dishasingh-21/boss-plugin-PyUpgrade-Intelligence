@@ -1,13 +1,16 @@
 # Scans a developer's own repository and finds every place their code references a symbol from the given framework's semantic graph.
+# Now also resolves through the framework's own public re-export aliases (see context_graph_builder/alias_resolver.py) -- e.g. code using django.db.models.Model correctly matches the graph's real definition at django.db.models.base.Model.
 
 import ast
 from pathlib import Path
 from collections import defaultdict
 from contracts.graph import Graph
 from contracts.usage import Usage, UsageIndex
+from context_graph_builder.alias_resolver import build_public_alias_map
 
 def build_usage_index(repo_path: str, framework_graph: Graph) -> UsageIndex:
     framework_ids = set(framework_graph.nodes.keys())
+    alias_map = build_public_alias_map(framework_graph)
     combined: dict[str, list[Usage]] = defaultdict(list)
     root = Path(repo_path)
     for py_file in root.rglob("*.py"):
@@ -18,16 +21,17 @@ def build_usage_index(repo_path: str, framework_graph: Graph) -> UsageIndex:
             print(f"Skipping {py_file}: {e}")
             continue
 
-        visitor = _UsageVisitor(file_path=str(py_file), framework_ids=framework_ids)
+        visitor = _UsageVisitor(file_path=str(py_file), framework_ids=framework_ids, alias_map=alias_map)
         visitor.visit(tree)
         for symbol_id, usages in visitor.usages.items():
             combined[symbol_id].extend(usages)
     return UsageIndex(repo_path=repo_path, usages=dict(combined))
 
 class _UsageVisitor(ast.NodeVisitor):
-    def __init__(self, file_path: str, framework_ids: set[str]):
+    def __init__(self, file_path: str, framework_ids: set[str], alias_map: dict[str, str]):
         self.file_path = file_path
         self.framework_ids = framework_ids
+        self.alias_map = alias_map
         self.local_aliases: dict[str,str] = {}
         self.usages: dict[str, list[Usage]] =defaultdict(list)
 
@@ -61,8 +65,13 @@ class _UsageVisitor(ast.NodeVisitor):
         if not parts:
             return
         candidate = _resolve_candidate_id(parts, self.local_aliases)
-        if candidate and candidate in self.framework_ids:
+        if not candidate:
+            return
+        if candidate in self.framework_ids:
             self.usages[candidate].append(Usage(file=self.file_path, line=lineno))
+        elif candidate in self.alias_map:
+            canonical_id = self.alias_map[candidate]
+            self.usages[canonical_id].append(Usage(file=self.file_path, line=lineno))
 
 def _dotted_chain(node: ast.expr) -> list[str] | None:
     parts = []
