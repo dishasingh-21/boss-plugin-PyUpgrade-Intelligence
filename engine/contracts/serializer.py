@@ -4,6 +4,7 @@ from dataclasses import asdict
 from contracts.graph import Graph, Node, Param, Edge
 from contracts.diff import DiffResult, Change, ChangeType
 from contracts.usage import Usage, UsageIndex
+from contracts.risk import RiskReport, FileRisk, ScoreBreakdownEntry, Recommendation
 
 def save_graph(graph: Graph, path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
@@ -57,4 +58,26 @@ def load_usage_index(path: str) -> UsageIndex:
         for symbol_id, usage_list in data["usages"].items()
     }
     return UsageIndex(repo_path=data["repo_path"], usages=usages)
+
+def save_risk_report(report: RiskReport, path: str) -> None:
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(asdict(report), f, indent=2)
+
+def load_risk_report(path: str) -> RiskReport:
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return RiskReport(
+        framework = data["framework"],
+        version_from = data["version_from"],
+        version_to = data["version_to"],
+        score = data["score"],
+        recommendation = Recommendation(data["recommendation"]),
+        max_severity = data["max_severity"],
+        breadth = data["breadth"],
+        worst_change_symbol = data.get("worst_change_symbol"),
+        score_breakdown = [ScoreBreakdownEntry(**b) for b in data["score_breakdown"]],
+        affected_files = [FileRisk(**f) for f in data["affected_files"]],
+        total_changes_in_diff = data["total_changes_in_diff"],
+        relevant_changes_count = data["relevant_changes_count"],
+    )
 

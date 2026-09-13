@@ -1,0 +1,4 @@
+This component was planned earlier to be added to the architecture. But it won't be in the scope of this MVP.
+This component only did fine tuning occasionally by turning the confidence level up for symbols that get matched within it.
+Not really something that would affect the risk scoring process at the core.
+To be added later.
