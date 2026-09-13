@@ -13,3 +13,4 @@ Thumbs.db
 test1.py
 test_django.py
 test_run_diff.py
+test_usage_indexer.py

@@ -1,7 +1,8 @@
 from contracts.graph import Node
 from contracts.diff import Change, ChangeType, DiffResult
 from contracts.serializer import save_diff_result, load_diff_result
-
+from contracts.usage import Usage, UsageIndex
+from contracts.serializer import save_usage_index, load_usage_index
 
 def test_diff_result_roundtrip(tmp_path):
     old_node = Node(id="x.foo", type="Function", name="foo", file="x.py", line=1, signature="foo()")

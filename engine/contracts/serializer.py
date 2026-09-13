@@ -3,6 +3,7 @@ import json
 from dataclasses import asdict
 from contracts.graph import Graph, Node, Param, Edge
 from contracts.diff import DiffResult, Change, ChangeType
+from contracts.usage import Usage, UsageIndex
 
 def save_graph(graph: Graph, path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
@@ -43,4 +44,17 @@ def load_diff_result(path: str) -> DiffResult:
         version_to=data["version_to"],
         changes=changes
     )
+
+def save_usage_index(index: UsageIndex, path: str) -> None:
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(asdict(index), f, indent=2)
+
+def load_usage_index(path: str) -> UsageIndex:
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    usages = {
+        symbol_id: [Usage(**u) for u in usage_list]
+        for symbol_id, usage_list in data["usages"].items()
+    }
+    return UsageIndex(repo_path=data["repo_path"], usages=usages)
 
