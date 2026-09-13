@@ -61,9 +61,9 @@ def test_moved_unchanged_only_never_reaches_hold():
     assert report.score <= 48
 
 
-def test_moved_also_changed_scores_same_as_breaking_signature():
+def test_moved_also_signature_changed_scores_same_as_breaking_signature():
     changes = [
-        Change(symbol_id=f"x.moved{i}", change_type=ChangeType.MOVED_ALSO_CHANGED, old=_node(f"x.moved{i}"), new=_node(f"y.moved{i}"), detail="moved and changed")
+        Change(symbol_id=f"x.moved{i}", change_type=ChangeType.MOVED_ALSO_SIGNATURE_CHANGED, old=_node(f"x.moved{i}"), new=_node(f"y.moved{i}"), detail="moved and changed")
         for i in range(3)
     ]
     diff_result = DiffResult(framework="test", version_from="1.0", version_to="2.0", changes=changes)
@@ -72,6 +72,18 @@ def test_moved_also_changed_scores_same_as_breaking_signature():
     report = score_risk(diff_result, usage_index)
 
     assert report.max_severity == 0.85
+
+
+def test_moved_also_body_changed_scores_between_moved_and_breaking():
+    changes = [
+        Change(symbol_id="x.moved0", change_type=ChangeType.MOVED_ALSO_BODY_CHANGED, old=_node("x.moved0"), new=_node("y.moved0"), detail="moved, body changed")
+    ]
+    diff_result = DiffResult(framework="test", version_from="1.0", version_to="2.0", changes=changes)
+    usage_index = _usage_index(["x.moved0"], extra_unaffected_count=19)
+
+    report = score_risk(diff_result, usage_index)
+
+    assert report.max_severity == 0.40
 
 
 def test_irrelevant_changes_excluded_from_scoring():

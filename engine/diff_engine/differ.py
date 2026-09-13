@@ -10,12 +10,14 @@ def diff(graph_a: Graph, graph_b: Graph) -> DiffResult:
             if moved_to:
                 detail = f"Moved from {node_a.id} to {moved_to.id}"
                 sig_change = _diff_signature(node_a, moved_to)
-                also_changed = sig_change is not None
-                if sig_change:
-                    detail += f". Also changed: {sig_change.detail}"
-                    change_type = ChangeType.MOVED_ALSO_CHANGED
-                else:
+                if sig_change is None:
                     change_type = ChangeType.MOVED_UNCHANGED
+                elif sig_change.change_type == ChangeType.SIGNATURE_CHANGED:
+                    detail += f"; also changed: {sig_change.detail}"
+                    change_type = ChangeType.MOVED_ALSO_SIGNATURE_CHANGED
+                else:
+                    detail += f"; also changed: {sig_change.detail}"
+                    change_type = ChangeType.MOVED_ALSO_BODY_CHANGED
                 changes.append(Change(
                     symbol_id=node_id,
                     change_type=change_type,

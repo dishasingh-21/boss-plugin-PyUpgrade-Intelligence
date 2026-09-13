@@ -15,6 +15,10 @@ class FileRisk:
     symbol_id: str
     change_type: str
     detail: str
+    body_diff_text: str = ""
+    code_snippet: str = ""
+    old_signature: str = ""
+    new_signature: str = ""
 
 @dataclass
 class ScoreBreakdownEntry:

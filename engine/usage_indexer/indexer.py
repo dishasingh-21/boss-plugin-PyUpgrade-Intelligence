@@ -9,7 +9,6 @@ from contracts.usage import Usage, UsageIndex
 from context_graph_builder.alias_resolver import build_public_alias_map
 
 def build_usage_index(repo_path: str, framework_graph: Graph) -> UsageIndex:
-    framework_ids = set(framework_graph.nodes.keys())
     alias_map = build_public_alias_map(framework_graph)
     combined: dict[str, list[Usage]] = defaultdict(list)
     root = Path(repo_path)

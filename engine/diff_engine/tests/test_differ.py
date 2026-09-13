@@ -83,7 +83,7 @@ def test_moved_symbol_with_also_changed_signature():
     graph_a = Graph(framework="test", version="1.0", nodes={"x.old_loc.save": old_node})
     graph_b = Graph(framework="test", version="2.0", nodes={"y.new_loc.save": new_node})
     result = diff(graph_a, graph_b)
-    assert result.changes[0].change_type == ChangeType.MOVED_ALSO_CHANGED
+    assert result.changes[0].change_type == ChangeType.MOVED_ALSO_SIGNATURE_CHANGED
 
 
 def test_moved_symbol_without_other_changes():
@@ -93,6 +93,15 @@ def test_moved_symbol_without_other_changes():
     graph_b = Graph(framework="test", version="2.0", nodes={"y.new_loc.save": new_node})
     result = diff(graph_a, graph_b)
     assert result.changes[0].change_type == ChangeType.MOVED_UNCHANGED
+
+
+def test_moved_symbol_with_only_body_changed():
+    old_node = _node("x.old_loc.save", name="save", signature="save(x)", body_hash="hash_v1")
+    new_node = _node("y.new_loc.save", name="save", signature="save(x)", body_hash="hash_v2")
+    graph_a = Graph(framework="test", version="1.0", nodes={"x.old_loc.save": old_node})
+    graph_b = Graph(framework="test", version="2.0", nodes={"y.new_loc.save": new_node})
+    result = diff(graph_a, graph_b)
+    assert result.changes[0].change_type == ChangeType.MOVED_ALSO_BODY_CHANGED
 
 def test_class_base_change_produces_meaningful_detail():
     old_node = _node("x.BoundField", type_="Class", signature="class BoundField(object)")

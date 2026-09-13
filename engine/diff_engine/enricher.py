@@ -1,9 +1,10 @@
 import difflib
 from contracts.diff import DiffResult, ChangeType
 
+_BODY_TEXT_TYPES = (ChangeType.BODY_CHANGED, ChangeType.MOVED_ALSO_BODY_CHANGED)
 def enrich_body_diffs(result: DiffResult, old_source_by_file: dict[str, str], new_source_by_file: dict[str,str]) -> DiffResult:
     for change in result.changes:
-        if change.change_type != ChangeType.BODY_CHANGED:
+        if change.change_type not in _BODY_TEXT_TYPES:
             continue
         old_node, new_node = change.old, change.new
         old_text = old_source_by_file.get(old_node.file)

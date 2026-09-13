@@ -7,7 +7,8 @@ from contracts.risk import RiskReport, FileRisk, ScoreBreakdownEntry, Recommenda
 SEVERITY = {
     "REMOVED": 1.00,
     "SIGNATURE_CHANGED_BREAKING": 0.85,
-    "MOVED_ALSO_CHANGED": 0.85,
+    "MOVED_ALSO_SIGNATURE_CHANGED": 0.85,
+    "MOVED_ALSO_BODY_CHANGED": 0.40,
     "MOVED_UNCHANGED": 0.35,
     "SIGNATURE_CHANGED_ADDITIVE": 0.15,
     "BODY_CHANGED": 0.10
@@ -71,7 +72,7 @@ def score_risk(diff_result: DiffResult, usage_index: UsageIndex) -> RiskReport:
 def _classify(change) -> str:
     if change.change_type == ChangeType.REMOVED:
         return "REMOVED"
-    if change.change_type in (ChangeType.MOVED_ALSO_CHANGED, ChangeType.MOVED_UNCHANGED):
+    if change.change_type in (ChangeType.MOVED_ALSO_SIGNATURE_CHANGED, ChangeType.MOVED_ALSO_BODY_CHANGED, ChangeType.MOVED_UNCHANGED):
         return change.change_type
     if change.change_type == ChangeType.SIGNATURE_CHANGED:
         if _is_breaking_signature_change(change):
