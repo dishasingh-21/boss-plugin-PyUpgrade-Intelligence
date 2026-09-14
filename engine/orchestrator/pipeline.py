@@ -17,6 +17,7 @@ from risk_scorer.scorer import score_risk
 from risk_scorer.enricher import enrich_affected_files
 
 def upgrade_check(framework: str, version_from: str, version_to: str, repo_path: str) -> RiskReport:
+    # To get risk report and upgrade recommendation.
     graph_a = get_or_build_graph(framework, version_from)
     graph_b = get_or_build_graph(framework, version_to)
     diff_result = diff(graph_a, graph_b)
@@ -24,19 +25,23 @@ def upgrade_check(framework: str, version_from: str, version_to: str, repo_path:
     return score_risk(diff_result, usage_index)
 
 def get_breaking_changes(framework: str, version_from: str, version_to: str) -> DiffResult:
+    # Breaking changes that will surface up when you upgrade to the framework's target version.
     graph_a = get_or_build_graph(framework, version_from)
     graph_b = get_or_build_graph(framework, version_to)
     return diff(graph_a, graph_b)
 
 def get_usage_in_code(framework: str, version: str, repo_path: str) -> UsageIndex:
+    # Raw usage — every framework symbol the user's repo code matches against, regardless of whether any of them changed.
     graph = get_or_build_graph(framework, version)
     return build_usage_index(repo_path, graph)
 
 def get_affected_files_raw(framework: str, version_from: str, version_to: str, repo_path: str) -> list[FileRisk]:
+    # Fast path: file/line/symbol/change-type/detail only
     report = upgrade_check(framework, version_from, version_to, repo_path)
     return report.affected_files
 
 def get_affected_files_enriched(framework: str, version_from: str, version_to: str, repo_path: str) -> list[FileRisk]:
+    # Slower, richer path: real body diff text for BODY_CHANGED symbols, plus the actual line of the user's own code that triggered each match.
     graph_a = get_or_build_graph(framework, version_from)
     graph_b = get_or_build_graph(framework, version_to)
     diff_result_raw = diff(graph_a, graph_b)
@@ -62,6 +67,7 @@ class FullPipelineResult:
     risk_report: RiskReport
 
 def run_full_pipeline(framework: str, version_from: str, version_to: str, repo_path: str) -> FullPipelineResult:
+    # Run the whole pipeline, get a debug bundle (zip file containing raw outputs of each component.
     graph_a = get_or_build_graph(framework, version_from)
     graph_b = get_or_build_graph(framework, version_to)
     diff_result_raw = diff(graph_a, graph_b)

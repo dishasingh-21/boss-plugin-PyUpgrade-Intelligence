@@ -15,3 +15,8 @@ test_django.py
 test_run_diff.py
 test_usage_indexer.py
 test_find_any_examples.py
+framework_source_cache/
+graph_cache/
+run_output_temp/
+cli_export_temp/
+*.zip
