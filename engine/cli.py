@@ -8,8 +8,11 @@ from context_graph_builder.tarball_ingestion import fetch_source
 from context_graph_builder.graph_cache import list_cached_graphs, clear_cache
 from all_outputs_bundler import bundle_run_outputs
 
+def _progress(message: str) -> None:
+    print(f"  ... {message}")
+
 def cmd_check(args):
-    report = upgrade_check(args.framework, args.from_version, args.to_version, args.repo)
+    report = upgrade_check(args.framework, args.from_version, args.to_version, args.repo, on_progress=_progress)
     print(f"Risk score: {report.score}/100 - {report.recommendation.value}")
     print(f"Relevant changes: {report.relevant_changes_count} / {report.total_changes_in_diff}")
     print(f"Worst Symbol: {report.worst_change_symbol}")
@@ -21,7 +24,7 @@ def cmd_check(args):
         print(f"    {fr.file}:{fr.line} -> {fr.symbol_id} ({fr.change_type})")
 
 def cmd_changes(args):
-    result = get_breaking_changes(args.framework, args.from_version, args.to_version)
+    result = get_breaking_changes(args.framework, args.from_version, args.to_version, on_progress=_progress)
     default_types = {"SIGNATURE_CHANGED", "REMOVED", "MOVED_ALSO_SIGNATURE_CHANGED", "MOVED_UNCHANGED"}
     types_filter = set(args.type.split(",")) if args.type else default_types
     shown = [c for c in result.changes if c.change_type.value in types_filter]
@@ -30,7 +33,7 @@ def cmd_changes(args):
         print(f"    [{c.change_type.value}] {c.symbol_id} --> {c.detail}")
 
 def cmd_usage(args):
-    usage_index = get_usage_in_code(args.framework, args.version, args.repo)
+    usage_index = get_usage_in_code(args.framework, args.version, args.repo, on_progress=_progress)
     total_usages = sum(len(usages) for usages in usage_index.usages.values())
     print(f"{len(usage_index.usages)} distinct symbols used, {total_usages} total usage sites.\n")
     for symbol_id, usages in usage_index.usages.items():
@@ -40,9 +43,9 @@ def cmd_usage(args):
 
 def cmd_affected(args):
     if args.enriched:
-        files = get_affected_files_enriched(args.framework, args.from_version, args.to_version, args.repo)
+        files = get_affected_files_enriched(args.framework, args.from_version, args.to_version, args.repo, on_progress=_progress)
     else:
-        files = get_affected_files_raw(args.framework, args.from_version, args.to_version, args.repo)
+        files = get_affected_files_raw(args.framework, args.from_version, args.to_version, args.repo, on_progress=_progress)
     for fr in files:
         print(f"{fr.file}:{fr.line} -> {fr.symbol_id} ({fr.change_type})")
         if args.enriched and fr.code_snippet:
@@ -53,9 +56,11 @@ def cmd_affected(args):
             print("BODY CHANGE    | ", fr.body_diff_text, "\n")
 
 def cmd_config_diff(args):
+    print("  ... Fetching source for both versions...")
     root_a = fetch_source(args.framework, args.from_version)
     root_b = fetch_source(args.framework, args.to_version)
     result = diff_config_files(str(root_a.parent), str(root_b.parent))
+    print()
     if not result:
         print("No config/dependency file changes detected.")
     for filename, text in result.items():
@@ -65,7 +70,8 @@ def cmd_config_diff(args):
 def cmd_export(args):
     all_parts = {"graph", "diff-raw", "diff-enriched", "config-diff", "usage", "risk"}
     parts = all_parts if args.include == "all" else set(args.include.split(","))
-    result = run_full_pipeline(args.framework, args.from_version, args.to_version, args.repo)
+    result = run_full_pipeline(args.framework, args.from_version, args.to_version, args.repo, on_progress=_progress)
+    print("Writing bundle...")
     zip_path = bundle_run_outputs(
         output_dir="cli_export_temp",
         graph_a=result.graph_a if "graph" in parts else None,

@@ -1,8 +1,10 @@
 # Wires every engine component into clean, single-purpose functions. This is what every CLI command and MCP tool calls directly.
+# Now, every function also accepts an optional on_progress callback (a function taking one string message), so a caller can report status while a run is in progress.
 
 import copy
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable, Optional
 from contracts.graph import Graph
 from contracts.diff import DiffResult
 from contracts.usage import UsageIndex
@@ -16,43 +18,65 @@ from usage_indexer.indexer import build_usage_index
 from risk_scorer.scorer import score_risk
 from risk_scorer.enricher import enrich_affected_files
 
-def upgrade_check(framework: str, version_from: str, version_to: str, repo_path: str) -> RiskReport:
+ProgressFn = Optional[Callable[[str], None]]
+def _report(on_progress: ProgressFn, message: str) -> None:
+    if on_progress:
+        on_progress(message)
+
+def upgrade_check(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> RiskReport:
     # To get risk report and upgrade recommendation.
+    _report(on_progress, f"Fetching {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
+    _report(on_progress, f"Fetching {framework} {version_to} graph...")
     graph_b = get_or_build_graph(framework, version_to)
+    _report(on_progress, "Comparing versions...")
     diff_result = diff(graph_a, graph_b)
+    _report(on_progress, "Scanning your code for framework usage...")
     usage_index = build_usage_index(repo_path, graph_a)
+    _report(on_progress, "Calculating risk score...")
     return score_risk(diff_result, usage_index)
 
-def get_breaking_changes(framework: str, version_from: str, version_to: str) -> DiffResult:
+def get_breaking_changes(framework: str, version_from: str, version_to: str, on_progress: ProgressFn = None) -> DiffResult:
     # Breaking changes that will surface up when you upgrade to the framework's target version.
+    _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
+    _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
     graph_b = get_or_build_graph(framework, version_to)
+    _report(on_progress, "Comparing versions...")
     return diff(graph_a, graph_b)
 
-def get_usage_in_code(framework: str, version: str, repo_path: str) -> UsageIndex:
+def get_usage_in_code(framework: str, version: str, repo_path: str, on_progress: ProgressFn = None) -> UsageIndex:
     # Raw usage — every framework symbol the user's repo code matches against, regardless of whether any of them changed.
+    _report(on_progress, f"Fetching/loading {framework} {version} graph...")
     graph = get_or_build_graph(framework, version)
+    _report(on_progress, "Scanning your code for framework usage...")
     return build_usage_index(repo_path, graph)
 
-def get_affected_files_raw(framework: str, version_from: str, version_to: str, repo_path: str) -> list[FileRisk]:
+def get_affected_files_raw(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> list[FileRisk]:
     # Fast path: file/line/symbol/change-type/detail only
     report = upgrade_check(framework, version_from, version_to, repo_path)
     return report.affected_files
 
-def get_affected_files_enriched(framework: str, version_from: str, version_to: str, repo_path: str) -> list[FileRisk]:
+def get_affected_files_enriched(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> list[FileRisk]:
     # Slower, richer path: real body diff text for BODY_CHANGED symbols, plus the actual line of the user's own code that triggered each match.
+    _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
+    _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
     graph_b = get_or_build_graph(framework, version_to)
+    _report(on_progress, "Comparing versions...")
     diff_result_raw = diff(graph_a, graph_b)
     diff_result_for_enriched = copy.deepcopy(diff_result_raw)
+    _report(on_progress, "Reading framework source for detailed diffs...")
     source_root_a = fetch_source(framework, version_from)
     source_root_b = fetch_source(framework, version_to)
     old_source = _read_source_by_file(source_root_a)
     new_source = _read_source_by_file(source_root_b)
     diff_result_enriched = enrich_body_diffs(diff_result_for_enriched, old_source, new_source)
+    _report(on_progress, "Scanning your code for framework usage...")
     usage_index = build_usage_index(repo_path, graph_a)
+    _report(on_progress, "Calculating risk score...")
     risk_report = score_risk(diff_result_raw, usage_index)
+    _report(on_progress, "Adding source context to affected files...")
     repo_source = _read_source_by_file(repo_path)
     return enrich_affected_files(risk_report.affected_files, diff_result_enriched, repo_source)
 
@@ -66,20 +90,29 @@ class FullPipelineResult:
     usage_index: UsageIndex
     risk_report: RiskReport
 
-def run_full_pipeline(framework: str, version_from: str, version_to: str, repo_path: str) -> FullPipelineResult:
+def run_full_pipeline(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> FullPipelineResult:
     # Run the whole pipeline, get a debug bundle (zip file containing raw outputs of each component.
+    _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
+    _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
     graph_b = get_or_build_graph(framework, version_to)
+    _report(on_progress, "Comparing versions...")
     diff_result_raw = diff(graph_a, graph_b)
     diff_result_for_enriched = copy.deepcopy(diff_result_raw)
+    _report(on_progress, "Reading framework source for detailed diffs...")
     source_root_a = fetch_source(framework, version_from)
     source_root_b = fetch_source(framework, version_to)
     old_source = _read_source_by_file(source_root_a)
     new_source = _read_source_by_file(source_root_b)
     diff_result_enriched = enrich_body_diffs(diff_result_for_enriched, old_source, new_source)
+    _report(on_progress, "Diffing config/dependency files...")
     config_diff = diff_config_files(str(source_root_a.parent), str(source_root_b.parent))
+    _report(on_progress, "Scanning your code for framework usage...")
     usage_index = build_usage_index(repo_path, graph_a)
+    _report(on_progress, "Calculating risk score...")
     risk_report = score_risk(diff_result_raw, usage_index)
+
+    _report(on_progress, "Done.")
 
     return FullPipelineResult(
         graph_a=graph_a,
