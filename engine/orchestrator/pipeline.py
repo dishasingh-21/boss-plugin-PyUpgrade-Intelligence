@@ -15,6 +15,7 @@ from diff_engine.differ import diff
 from diff_engine.enricher import enrich_body_diffs
 from diff_engine.config_differ import diff_config_files
 from usage_indexer.indexer import build_usage_index
+from usage_indexer.enricher import enrich_usage_snippets
 from risk_scorer.scorer import score_risk
 from risk_scorer.enricher import enrich_affected_files
 
@@ -45,12 +46,18 @@ def get_breaking_changes(framework: str, version_from: str, version_to: str, on_
     _report(on_progress, "Comparing versions...")
     return diff(graph_a, graph_b)
 
-def get_usage_in_code(framework: str, version: str, repo_path: str, on_progress: ProgressFn = None) -> UsageIndex:
+def get_usage_in_code(framework: str, version: str, repo_path: str, enriched: bool = False, on_progress: ProgressFn = None) -> UsageIndex:
     """Raw usage — every framework symbol the user's repo code matches against, regardless of whether any of them changed."""
     _report(on_progress, f"Fetching/loading {framework} {version} graph...")
     graph = get_or_build_graph(framework, version)
     _report(on_progress, "Scanning your code for framework usage...")
-    return build_usage_index(repo_path, graph)
+    usage_index = build_usage_index(repo_path, graph)
+    if enriched:
+        _report(on_progress, "Adding source snippets...")
+        repo_source = _read_source_by_file(Path(repo_path))
+        usage_index = enrich_usage_snippets(usage_index, repo_source)
+
+    return usage_index
 
 def get_affected_files_raw(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> list[FileRisk]:
     """Fast path: file/line/symbol/change-type/detail only"""

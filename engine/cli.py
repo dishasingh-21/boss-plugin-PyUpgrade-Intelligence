@@ -33,13 +33,16 @@ def cmd_changes(args):
         print(f"    [{c.change_type.value}] {c.symbol_id} --> {c.detail}")
 
 def cmd_usage(args):
-    usage_index = get_usage_in_code(args.framework, args.version, args.repo, on_progress=_progress)
+    usage_index = get_usage_in_code(args.framework, args.version, args.repo, enriched=args.enriched, on_progress=_progress)
     total_usages = sum(len(usages) for usages in usage_index.usages.values())
     print(f"{len(usage_index.usages)} distinct symbols used, {total_usages} total usage sites.\n")
     for symbol_id, usages in usage_index.usages.items():
         print(f"{symbol_id}    ({len(usages)} usage{'s' if len(usages)>1 else ''})")
         for u in usages:
             print(f"   {u.file}:{u.line}")
+            if args.enriched and u.snippet:
+                print(f"CODE SNIPPET    | {u.snippet}")
+        print("\n")
 
 def cmd_affected(args):
     if args.enriched:
@@ -119,6 +122,7 @@ def build_parser():
     p.add_argument("framework")
     p.add_argument("version")
     p.add_argument("--repo", required=True)
+    p.add_argument("--enriched", action="store_true")
     p.set_defaults(func=cmd_usage)
 
     p = sub.add_parser("affected")
