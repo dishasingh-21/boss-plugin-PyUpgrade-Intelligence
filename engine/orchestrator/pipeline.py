@@ -24,7 +24,7 @@ def _report(on_progress: ProgressFn, message: str) -> None:
         on_progress(message)
 
 def upgrade_check(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> RiskReport:
-    # To get risk report and upgrade recommendation.
+    """To get risk report and upgrade recommendation."""
     _report(on_progress, f"Fetching {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
     _report(on_progress, f"Fetching {framework} {version_to} graph...")
@@ -37,7 +37,7 @@ def upgrade_check(framework: str, version_from: str, version_to: str, repo_path:
     return score_risk(diff_result, usage_index)
 
 def get_breaking_changes(framework: str, version_from: str, version_to: str, on_progress: ProgressFn = None) -> DiffResult:
-    # Breaking changes that will surface up when you upgrade to the framework's target version.
+    """Breaking changes that will surface up when you upgrade to the framework's target version."""
     _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
     _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
@@ -46,19 +46,19 @@ def get_breaking_changes(framework: str, version_from: str, version_to: str, on_
     return diff(graph_a, graph_b)
 
 def get_usage_in_code(framework: str, version: str, repo_path: str, on_progress: ProgressFn = None) -> UsageIndex:
-    # Raw usage — every framework symbol the user's repo code matches against, regardless of whether any of them changed.
+    """Raw usage — every framework symbol the user's repo code matches against, regardless of whether any of them changed."""
     _report(on_progress, f"Fetching/loading {framework} {version} graph...")
     graph = get_or_build_graph(framework, version)
     _report(on_progress, "Scanning your code for framework usage...")
     return build_usage_index(repo_path, graph)
 
 def get_affected_files_raw(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> list[FileRisk]:
-    # Fast path: file/line/symbol/change-type/detail only
+    """Fast path: file/line/symbol/change-type/detail only"""
     report = upgrade_check(framework, version_from, version_to, repo_path)
     return report.affected_files
 
 def get_affected_files_enriched(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> list[FileRisk]:
-    # Slower, richer path: real body diff text for BODY_CHANGED symbols, plus the actual line of the user's own code that triggered each match.
+    """Slower, richer path: real body diff text for BODY_CHANGED symbols, plus the actual line of the user's own code that triggered each match."""
     _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
     _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
@@ -91,7 +91,7 @@ class FullPipelineResult:
     risk_report: RiskReport
 
 def run_full_pipeline(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> FullPipelineResult:
-    # Run the whole pipeline, get a debug bundle (zip file containing raw outputs of each component.
+    """Run the whole pipeline, get a debug bundle (zip file containing raw outputs of each component."""
     _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
     graph_a = get_or_build_graph(framework, version_from)
     _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
