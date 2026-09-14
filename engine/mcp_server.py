@@ -1,5 +1,8 @@
 # MCP Server exposing the engine's orchestrator functions as tools an AI agent can call.
 
+import os
+from pathlib import Path
+os.chdir(Path(__file__).resolve().parent)
 from dataclasses import asdict
 from mcp.server import MCPServer
 from orchestrator.pipeline import(upgrade_check as _upgrade_check, get_breaking_changes as _get_breaking_changes, get_usage_in_code as _get_usage_in_code, get_affected_files_raw as _get_affected_files_raw, get_affected_files_enriched as _get_affected_files_enriched, run_full_pipeline as _run_full_pipeline)
