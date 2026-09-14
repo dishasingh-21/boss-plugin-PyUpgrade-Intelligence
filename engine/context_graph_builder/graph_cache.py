@@ -15,3 +15,33 @@ def get_or_build_graph(framework: str, version: str, cache_dir: str = "./graph_c
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     save_graph(graph, str(cache_path))
     return graph
+
+def list_cached_graphs(cache_dir: str = "./graph_cache") -> list[dict]:
+    cache_path = Path(cache_dir)
+    if not cache_path.exists():
+        return []
+
+    results = []
+    for f in cache_path.glob("*_graph.json"):
+        stem = f.stem
+        parts = stem.rsplit("_", 1)
+        fv = parts[0] if len(parts)==2 else stem
+        fv_parts = fv.rsplit("_", 1)
+        framework = fv_parts[0] if len(fv_parts)==2 else fv
+        version = fv_parts[1] if len(fv_parts)==2 else ""
+        stat = f.stat()
+        results.append({"framework": framework, "version": version, "path": str(f), "size_kb": round(stat.st_size/1024, 1)})
+
+    return results
+
+def clear_cache(cache_dir: str = "./graph_cache", framework: str | None=None) -> int:
+    cache_path = Path(cache_dir)
+    if not cache_path.exists():
+        return 0
+    pattern = f"{framework}_*_graph.json" if framework else "*_graph.json"
+    removed = 0
+    for f in cache_path.glob(pattern):
+        f.unlink()
+        removed+=1
+
+    return removed
