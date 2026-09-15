@@ -40,3 +40,14 @@ def test_save_and_load_graph_roundtrip(tmp_path):
 
     assert reloaded.nodes.keys() == graph.nodes.keys()
     assert reloaded.framework == graph.framework
+
+def test_files_in_excluded_directories_are_skipped(tmp_path):
+    (tmp_path / "models.py").write_text("class Model:\n    pass\n")
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    (tests_dir / "test_models.py").write_text("def test_something():\n    pass\n")
+
+    graph = build_graph_from_directory("testapp", "1.0", str(tmp_path))
+
+    assert any("models.Model" in node_id for node_id in graph.nodes)
+    assert not any("test_something" in node_id for node_id in graph.nodes)

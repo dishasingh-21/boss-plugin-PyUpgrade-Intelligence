@@ -12,7 +12,7 @@ def _progress(message: str) -> None:
     print(f"  ... {message}")
 
 def cmd_check(args):
-    report = upgrade_check(args.framework, args.from_version, args.to_version, args.repo, on_progress=_progress)
+    report = upgrade_check(args.framework, args.from_version, args.to_version, args.repo, package_name=args.package, on_progress=_progress)
     print(f"Risk score: {report.score}/100 - {report.recommendation.value}")
     print(f"Relevant changes: {report.relevant_changes_count} / {report.total_changes_in_diff}")
     print(f"Worst Symbol: {report.worst_change_symbol}")
@@ -109,6 +109,7 @@ def build_parser():
     p.add_argument("from_version")
     p.add_argument("to_version")
     p.add_argument("--repo", required=True)
+    p.add_argument("--package")
     p.set_defaults(func=cmd_check)
 
     p = sub.add_parser("changes")

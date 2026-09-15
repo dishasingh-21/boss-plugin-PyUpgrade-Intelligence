@@ -24,12 +24,12 @@ def _report(on_progress: ProgressFn, message: str) -> None:
     if on_progress:
         on_progress(message)
 
-def upgrade_check(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> RiskReport:
+def upgrade_check(framework: str, version_from: str, version_to: str, repo_path: str, package_name: str | None = None, on_progress: ProgressFn = None) -> RiskReport:
     """To get risk report and upgrade recommendation."""
     _report(on_progress, f"Fetching {framework} {version_from} graph...")
-    graph_a = get_or_build_graph(framework, version_from)
+    graph_a = get_or_build_graph(framework, version_from, package_name=package_name)
     _report(on_progress, f"Fetching {framework} {version_to} graph...")
-    graph_b = get_or_build_graph(framework, version_to)
+    graph_b = get_or_build_graph(framework, version_to, package_name=package_name)
     _report(on_progress, "Comparing versions...")
     diff_result = diff(graph_a, graph_b)
     _report(on_progress, "Scanning your code for framework usage...")
@@ -37,19 +37,19 @@ def upgrade_check(framework: str, version_from: str, version_to: str, repo_path:
     _report(on_progress, "Calculating risk score...")
     return score_risk(diff_result, usage_index)
 
-def get_breaking_changes(framework: str, version_from: str, version_to: str, on_progress: ProgressFn = None) -> DiffResult:
+def get_breaking_changes(framework: str, version_from: str, version_to: str, package_name: str | None = None, on_progress: ProgressFn = None) -> DiffResult:
     """Breaking changes that will surface up when you upgrade to the framework's target version."""
     _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
-    graph_a = get_or_build_graph(framework, version_from)
+    graph_a = get_or_build_graph(framework, version_from, package_name=package_name)
     _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
-    graph_b = get_or_build_graph(framework, version_to)
+    graph_b = get_or_build_graph(framework, version_to, package_name=package_name)
     _report(on_progress, "Comparing versions...")
     return diff(graph_a, graph_b)
 
-def get_usage_in_code(framework: str, version: str, repo_path: str, enriched: bool = False, on_progress: ProgressFn = None) -> UsageIndex:
+def get_usage_in_code(framework: str, version: str, repo_path: str, enriched: bool = False, package_name: str | None = None, on_progress: ProgressFn = None) -> UsageIndex:
     """Raw usage — every framework symbol the user's repo code matches against, regardless of whether any of them changed."""
     _report(on_progress, f"Fetching/loading {framework} {version} graph...")
-    graph = get_or_build_graph(framework, version)
+    graph = get_or_build_graph(framework, version, package_name=package_name)
     _report(on_progress, "Scanning your code for framework usage...")
     usage_index = build_usage_index(repo_path, graph)
     if enriched:
@@ -97,18 +97,18 @@ class FullPipelineResult:
     usage_index: UsageIndex
     risk_report: RiskReport
 
-def run_full_pipeline(framework: str, version_from: str, version_to: str, repo_path: str, on_progress: ProgressFn = None) -> FullPipelineResult:
+def run_full_pipeline(framework: str, version_from: str, version_to: str, repo_path: str, package_name: str | None = None, on_progress: ProgressFn = None) -> FullPipelineResult:
     """Run the whole pipeline, get a debug bundle (zip file containing raw outputs of each component."""
     _report(on_progress, f"Fetching/loading {framework} {version_from} graph...")
-    graph_a = get_or_build_graph(framework, version_from)
+    graph_a = get_or_build_graph(framework, version_from, package_name=package_name)
     _report(on_progress, f"Fetching/loading {framework} {version_to} graph...")
-    graph_b = get_or_build_graph(framework, version_to)
+    graph_b = get_or_build_graph(framework, version_to, package_name=package_name)
     _report(on_progress, "Comparing versions...")
     diff_result_raw = diff(graph_a, graph_b)
     diff_result_for_enriched = copy.deepcopy(diff_result_raw)
     _report(on_progress, "Reading framework source for detailed diffs...")
-    source_root_a = fetch_source(framework, version_from)
-    source_root_b = fetch_source(framework, version_to)
+    source_root_a = fetch_source(framework, version_from, package_name=package_name)
+    source_root_b = fetch_source(framework, version_to, package_name=package_name)
     old_source = _read_source_by_file(source_root_a)
     new_source = _read_source_by_file(source_root_b)
     diff_result_enriched = enrich_body_diffs(diff_result_for_enriched, old_source, new_source)

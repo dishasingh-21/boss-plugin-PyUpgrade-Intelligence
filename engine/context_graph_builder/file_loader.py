@@ -2,6 +2,8 @@ from pathlib import Path
 from context_graph_builder.resolver import build_graph, FileInfo
 from contracts.graph import Graph
 
+_EXCLUDED_DIR_NAMES = {"tests", "test", "_tests", "testing", "docs", "doc", "examples", "example", "_vendor", "vendor", "benchmarks"}
+
 def _module_prefix_from_path(file_path: Path, root: Path) -> str:
     rel = file_path.relative_to(root)
     parts = list(rel.parts)
@@ -17,6 +19,8 @@ def build_graph_from_directory(framework: str, version: str, root_dir: str) -> G
     root = Path(root_dir)
     files: list[FileInfo] = []
     for pyfile in root.rglob("*.py"):
+        if any(part.lower() in _EXCLUDED_DIR_NAMES for part in pyfile.relative_to(root).parts):
+            continue
         try:
             source = pyfile.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError) as e:
