@@ -20,3 +20,6 @@ graph_cache/
 run_output_temp/
 cli_export_temp/
 *.zip
+.gradle/
+build/
+.kotlin/

@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "pluginId": "ai.rever.boss.plugin.dynamic.pyupgradeIntelligence",
+  "displayName": "PyUpgrade Intelligence",
+  "version": "0.1.0",
+  "apiVersion": "1.0.51",
+  "minBossVersion": "8.16.30",
+  "mainClass": "ai.rever.boss.plugin.dynamic.pyupgradeIntelligence.PyUpgradeIntelligenceDynamicPlugin",
+  "type": "service",
+  "description": "Semantic graph-based upgrade risk checker for Python frameworks",
+  "author": "Disha Singh",
+  "url": "https://github.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence"
+}
