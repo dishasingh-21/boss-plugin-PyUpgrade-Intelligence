@@ -5,7 +5,7 @@ from pathlib import Path
 os.chdir(Path(__file__).resolve().parent)
 from dataclasses import asdict
 from mcp.server import MCPServer
-from orchestrator.pipeline import(upgrade_check as _upgrade_check, get_breaking_changes as _get_breaking_changes, get_usage_in_code as _get_usage_in_code, get_affected_files_raw as _get_affected_files_raw, get_affected_files_enriched as _get_affected_files_enriched, run_full_pipeline as _run_full_pipeline)
+from orchestrator.pipeline import(upgrade_check as _upgrade_check, get_breaking_changes as _get_breaking_changes, get_usage_in_code as _get_usage_in_code, get_affected_files_raw as _get_affected_files_raw, get_affected_files_enriched as _get_affected_files_enriched, run_full_pipeline as _run_full_pipeline, warm_cache as _warm_cache)
 from diff_engine.config_differ import diff_config_files
 from context_graph_builder.tarball_ingestion import fetch_source
 from context_graph_builder.graph_cache import list_cached_graphs
@@ -21,6 +21,7 @@ def upgrade_check(framework: str, version_from: str, version_to: str, repo_path:
     Check risk of upgrading a Python framework from one version to another, for a specific codebase.
     Returns a compact, auditable risk score (0-100), a recommendation (UPGRADE/UPGRADE_WITH_CAUTION/HOLD), the specific symbol driving the score, and a short list of affected files with exact lines.
     Use this as the default first call or any upgrade question.
+    If this is the first time checking this framework/version pair in this session, call warm_graph_cache for both versions first to avoid a slow first-time build inside this call.
     """
     report = _upgrade_check(framework, version_from, version_to, repo_path)
     return asdict(report)
@@ -89,6 +90,21 @@ def list_cached_semantic_graphs() -> dict:
     List every framework version whose semantic graph is already built and cached locally, avoiding a redundant re-download/re-parse.
     """
     return {"cached": list_cached_graphs()}
+
+@mcp.tool()
+def warm_graph_cache(framework: str, version: str, package_name: str = None) -> dict:
+    """
+        Pre-builds and caches a framework version's semantic graph without
+        running a full check. Call this FIRST, once per version, before
+        upgrade_check or get_breaking_changes on a framework/version pair
+        you haven't checked before in this session -- the first-time
+        build can be slow (downloading and parsing the framework's full
+        source), and calling this ahead of time avoids that cost landing
+        inside a time-limited check call. If the framework's import name
+        differs from its PyPI name (e.g. 'livekit-agents' installs as
+        'livekit'), pass package_name explicitly.
+    """
+    return _warm_cache(framework, version, package_name=package_name)
 
 @mcp.tool()
 def export_debug_bundle(framework: str, version_from: str, version_to: str, repo_path: str, out_path: str = "pyupgrade_debug_bundle.zip", include: str = "all") -> dict:

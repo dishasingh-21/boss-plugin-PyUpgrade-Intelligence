@@ -140,3 +140,11 @@ def _read_source_by_file(root_dir) -> dict[str,str]:
         except (UnicodeDecodeError, OSError):
             continue
     return sources
+
+def warm_cache(framework: str, version: str, package_name: str | None=None, on_progress: ProgressFn = None) -> dict:
+    """
+    Builds and caches a framework version's graph on its own, without running a diff or risk score. Meant to be called ahead of time from the CLI directly, or as a dedicated first MCP tool call so the slower first-time build/parse happens before a time-limited upgrade_check call, keeping that call on the fast, cached path.
+    """
+    _report(on_progress, f"Building {framework} {version} graph...")
+    graph = get_or_build_graph(framework, version, package_name=package_name)
+    return {"framework": framework, "version": version, "node_count": len(graph.nodes), "edge_count": len(graph.edges), "cached": True}

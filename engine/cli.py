@@ -2,7 +2,7 @@
 # NOTE: The 'graph' visualization command from the spec is not yet implemented.
 
 import argparse
-from orchestrator.pipeline import (upgrade_check, get_breaking_changes, get_affected_files_raw, get_affected_files_enriched, get_usage_in_code, run_full_pipeline)
+from orchestrator.pipeline import (upgrade_check, get_breaking_changes, get_affected_files_raw, get_affected_files_enriched, get_usage_in_code, run_full_pipeline, warm_cache)
 from diff_engine.config_differ import diff_config_files
 from context_graph_builder.tarball_ingestion import fetch_source
 from context_graph_builder.graph_cache import list_cached_graphs, clear_cache
@@ -100,6 +100,10 @@ def cmd_cache_clear(args):
     removed = clear_cache(framework=args.framework)
     print(f"Removed {removed} cached graph(s).")
 
+def cmd_warm(args):
+    result = warm_cache(args.framework, args.version, package_name=args.package, on_progress=_progress)
+    print(f"\nCached {result['framework']} {result['version']}: {result['node_count']} nodes, {result['edge_count']} edges")
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="pyupgrade")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -156,6 +160,12 @@ def build_parser():
     p = cache_sub.add_parser("clear")
     p.add_argument("framework", nargs="?", default=None)
     p.set_defaults(func=cmd_cache_clear)
+
+    p = sub.add_parser("warm")
+    p.add_argument("framework")
+    p.add_argument("version")
+    p.add_argument("--package")
+    p.set_defaults(func=cmd_warm)
 
     return parser
 
