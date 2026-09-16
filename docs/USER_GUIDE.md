@@ -93,18 +93,14 @@ Use absolute paths. Restart Claude Desktop fully (quit from the system tray, not
 Once connected, it'll have 7 MCP tools defined in mcp_server.py. Ask claude some questions related to each of the mcp tools to test them.
 
 ---
-## 4. Pre-warming the cache
-Before checking a framework/version pair for the first time, it's worth building its graph ahead of time rather than as part of the actual check:
+## 4. Managing the cache
+Framework graphs are built once and cached — every check after the first is fast. Build one ahead of time if you want:
 
 ```bash
 python engine/cli.py warm django 5.0
 python engine/cli.py warm django 4.2
 ```
-
-A cold first-time build (downloading and parsing a framework's full source) can take a long time. Warming first means the real check call lands on a fast, already-cached path instead. 
-
-If you skip this and a check on a brand-new pair seems to hang or come back empty, that's expected on the first attempt, however, the build keeps running in the background regardless of what the tool call itself reported, and simply asking again a few seconds later will hit the now-warm cache.
-
+ 
 ```bash
 python engine/cli.py cache list           # see what's already cached
 python engine/cli.py cache clear          # clear everything
