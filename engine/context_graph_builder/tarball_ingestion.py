@@ -33,8 +33,9 @@ def fetch_source(framework: str, version: str, cache_dir: str = "./framework_sou
         candidates = _list_plausible_source_dirs(dest)
         raise RuntimeError(
             f"Could not confidently locate the package for '{framework}' inside {dest}. "
-            f"Candidates found: {candidates or 'none'}. Specify the correct one "
-            f"explicitly with package_name=<name>."
+            f"Candidates found: {candidates or 'none'}.\n"
+            f"CLI: for e.g., Add --package <correct-package-name> at the end of the command\n"
+            f"MCP tool: pass packageName: <correct-package-name>"
         )
 
     return package_root

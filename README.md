@@ -72,8 +72,14 @@ flowchart TD
  
     O --> CLI[CLI]
     O --> MCP[MCP server]
-    MCP --> KP[Kotlin plugin]
-    KP --> BOSS[BOSS]
+   
+    subgraph boss_only [Only when running inside BOSS]
+        KP[Kotlin plugin]
+        BOSS[BOSS]
+        KP --> BOSS
+    end
+    
+    MCP --> KP
 ```
 
 - `context_graph_builder` parses a framework's real source into a graph - every function, class, and method, with signatures, async/property flags, and a structural fingerprint of each body - plus the calls, imports, and inheritance between them.
@@ -92,7 +98,7 @@ flowchart TD
 None of your source code is ever sent anywhere. Usage analysis happens entirely on your own machine. The only network calls this tool makes are to PyPI, to fetch *public* framework source code and package metadata, nothing about your project, its files, or its contents is ever transmitted.
 
 ## License
-MIT — see `LICENSE`.
+MIT (see `LICENSE`).
 
 ## Author
 Disha Singh ([@dishasingh-21](https://github.com/dishasingh-21))
