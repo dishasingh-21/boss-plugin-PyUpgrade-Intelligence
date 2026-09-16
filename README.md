@@ -18,12 +18,12 @@ PyUpgrade Intelligence builds a real semantic graph of a framework's source code
 
 ## How it's delivered
 - **A BOSS plugin**: seven MCP tools an attached agent can call directly. See `docs/components/mcp-server.md` and `docs/components/kotlin-plugin.md`.
-- **A standalone CLI**: the full engine, usable without BOSS at all. See `docs/components/cli.md`.
-- **A standalone MCP server**: usable with any MCP client (Claude Desktop, the MCP Inspector, etc.), independent of BOSS.
+- **A standalone CLI**: See `docs/components/cli.md`.
+- **A standalone MCP server**: usable with any MCP client (Claude Desktop, the MCP Inspector, etc.)
 
 ## Usage
 ### Standalone 
-The entire engine works entirely on its own.
+The engine works entirely on its own.
 
 Some example commands look like:
 ```bash
@@ -38,6 +38,12 @@ Full command reference: [`CLI-Specification.md`](CLI-Specification.md)
 It also runs as a plain MCP Server, connectable from any MCP Client (like, Claude Desktop, MCP Inspector, and even your own MCP Client)
 ```bash
 python engine/mcp_server.py
+```
+
+To run a server with a debugging inspector, run:
+```bash
+pip install mcp[cli]
+mcp dev engine/mcp_server.py
 ```
 
 ### Inside BOSS Environment

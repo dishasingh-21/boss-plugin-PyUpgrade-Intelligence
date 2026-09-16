@@ -12,7 +12,7 @@ A command-line interface exposing the engine directly. The CLI and the MCP serve
  
 Runs the full pipeline and prints a compact risk report: score, recommendation, breakdown, affected files.
 ```bash
-python cli.py check <framework> <old_version> <new_version> --repo <path_to_your_repo> [--package <import_name>]
+python cli.py check <framework> <old_version> <new_version> --repo path/to/your/repo [--package <import_name>]
 ```
 
 example commands:
@@ -56,13 +56,13 @@ Without `--type`, only the four "Yes" rows are shown, every case that represents
 Lists every framework symbol a codebase uses, independent of any version comparison.
  
 ```bash
-python cli.py usage <framework> <version> --repo <path> [--enriched]
+python cli.py usage <framework> <version> --repo path/to/your/repo [--enriched]
 ```
 
 example command:
 ```bash
-python cli.py usage django 4.2 --repo ./my-django-project
-python cli.py usage django 4.2 --repo ./my-django-project --enriched
+python cli.py usage django 4.2 --repo path/to/your/repo
+python cli.py usage django 4.2 --repo path/to/your/repo --enriched
 ```
  
 `--enriched` adds the actual source code line for each usage, at the cost of extra file reads.
@@ -72,13 +72,13 @@ python cli.py usage django 4.2 --repo ./my-django-project --enriched
 Just the specific files and lines affected by changes between two versions, faster than `check` when only the locations matter, not a full score.
  
 ```bash
-python cli.py affected <framework> <old_version> <new_version> --repo <path> [--enriched]
+python cli.py affected <framework> <old_version> <new_version> --repo path/to/your/repo [--enriched]
 ```
 
 example command:
 ```bash
-python cli.py affected django 4.2 5.0 --repo ./my-django-project
-python cli.py affected django 4.2 5.0 --repo ./my-django-project --enriched
+python cli.py affected django 4.2 5.0 --repo path/to/your/repo
+python cli.py affected django 4.2 5.0 --repo path/to/your/repo --enriched
 ```
  
 `--enriched` adds real source snippets, before/after signatures (for signature changes), and real body diff text (for implementation changes).
@@ -101,13 +101,13 @@ python cli.py config-diff django 4.2 5.0
 Exports the full raw output of the pipeline as a zip file, for debugging or manual inspection - each part as a separate JSON file, mirroring the engine's own folder structure. Never runs automatically as part of any other command.
  
 ```bash
-python cli.py export <framework> <old_version> <new_version> --repo <path> [--include <parts>] [--out <file.zip>]
+python cli.py export <framework> <old_version> <new_version> --repo path/to/your/repo [--include <parts>] [--out <file.zip>]
 ```
 
 example command:
 ```bash
-python cli.py export django 4.2 5.0 --repo ./my-project --out debug.zip
-python cli.py export django 4.2 5.0 --repo ./my-project --include graph,diff-raw --out partial.zip
+python cli.py export django 4.2 5.0 --repo path/to/your/repo --out debug.zip
+python cli.py export django 4.2 5.0 --repo path/to/your/repo --include graph,diff-raw --out partial.zip
 ```
  
 **All possible `--include` values** (comma-separated, or `all`):
