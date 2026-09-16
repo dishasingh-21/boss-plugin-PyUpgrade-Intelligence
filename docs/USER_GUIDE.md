@@ -18,7 +18,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-That's the whole setup for using it standalone. For the BOSS plugin specifically, see `docs/BOSS_SUBMISSION.md`'s build/install steps.
+That's the whole setup for using it standalone. For the BOSS plugin specifically, see [`BOSS_SUBMISSION.md`](../BOSS_SUBMISSION.md)'s build/install steps.
 
 ---
 ## 2. Standalone: via the CLI
@@ -118,7 +118,7 @@ python engine/cli.py check livekit-agents 1.5.1 1.8.1 --repo path/to/project --p
 
 ---
 ## 6. Inside BOSS Environment
-Once the plugin's built and installed(refer `BOSS_SUBMISSION.md`) (**Toolbox → From File**, selecting the built JAR), enable its tools from **Toolbox → MCP**. Seven tools appear, each prefixed `pyupgrade_`:
+Once the plugin's built and installed(refer `../BOSS_SUBMISSION.md`) (**Toolbox → From File**, selecting the built JAR), enable its tools from **Toolbox → MCP**. Seven tools appear, each prefixed `pyupgrade_`:
  
 `pyupgrade_check`, `pyupgrade_warm_cache`, `pyupgrade_get_breaking_changes`, `pyupgrade_get_usage`, `pyupgrade_get_affected_files`, `pyupgrade_get_config_diff`, `pyupgrade_list_cached_frameworks`.
 

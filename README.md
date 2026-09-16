@@ -4,6 +4,8 @@
 
 A semantic graph-based upgrade risk checker for Python frameworks like Django, Flask, etc.
 
+> **BOSS Contributor Hackathon Submission** present in [`BOSS_SUBMISSION.md`](BOSS_SUBMISSION.md)
+
 ---
 ## The problem
 "Is it safe to upgrade Django from 4.2 to 5.0?" is a question every Python developer eventually asks, and today the honest answer requires manually reading changelogs, guessing which of hundreds of changes actually touch your codebase, and hoping you didn't miss something. Every existing tool in this space answers the question by reading what maintainers *wrote* about a release. None of them read the actual code.
@@ -31,7 +33,7 @@ python engine/cli.py usage django 4.2 --repo path/to/your/project
 python engine/cli.py warm django 5.0
 ```
 
-Full command reference: `CLI-specification.md`
+Full command reference: [`CLI-Specification.md`](CLI-Specification.md)
 
 It also runs as a plain MCP Server, connectable from any MCP Client (like, Claude Desktop, MCP Inspector, and even your own MCP Client)
 ```bash
@@ -39,7 +41,7 @@ python engine/mcp_server.py
 ```
 
 ### Inside BOSS Environment
-See `docs/BOSS_SUBMISSION.md`, an AI Agent gets the following tools automatically:
+See [`BOSS_SUBMISSION.md`](BOSS_SUBMISSION.md), an AI Agent gets the following tools automatically:
 
 | Tool | What it does                                                 |
 |---|--------------------------------------------------------------|
@@ -89,16 +91,17 @@ flowchart TD
 
 ---
 ## Documentation
-- **New here?** Start with `docs/USER_GUIDE.md`.
-- **Want to understand a specific piece?** See `docs/components/`, which consists of one doc per component, covering what it is, how it works, and how to use it directly.
-- **About the design decisions, deferred features, and known limitations?** See `PyUpgrade-Intelligence-Design.md`.
-- **Want the exact CLI command reference?** See `CLI-Specification.md`.
+- **New here?** Start with [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md).
+- **Want to understand a specific component?** See [`docs/components/`](docs/components/), which consists of one doc per component, covering what it is, and how it works.
+- **About the design decisions, deferred features, and known limitations** See [`PyUpgrade-Intelligence-Design.md`](PyUpgrade-Intelligence-Design.md).
+- **Want the exact CLI command reference?** See [`CLI-Specification.md`](CLI-Specification.md).
+- **For risk model's mathematical proofs** See [`Risk-Scoring-Mathematical-Model.md`](Risk-Scoring-Mathematical-Model.md).
 
 ## Data privacy
 None of your source code is ever sent anywhere. Usage analysis happens entirely on your own machine. The only network calls this tool makes are to PyPI, to fetch *public* framework source code and package metadata, nothing about your project, its files, or its contents is ever transmitted.
 
 ## License
-MIT (see `LICENSE`).
+MIT (see [`LICENSE`](LICENSE))
 
 ## Author
 Disha Singh ([@dishasingh-21](https://github.com/dishasingh-21))
