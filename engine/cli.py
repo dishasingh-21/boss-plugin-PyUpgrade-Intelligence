@@ -1,6 +1,9 @@
 # Command-line interface for PyUpgrade Intelligence. Every command is a thin wrapper around an orchestrator function.
 # NOTE: The 'graph' visualization command from the spec is not yet implemented.
 
+import os
+from pathlib import Path
+os.chdir(Path(__file__).resolve().parent)
 import argparse
 from orchestrator.pipeline import (upgrade_check, get_breaking_changes, get_affected_files_raw, get_affected_files_enriched, get_usage_in_code, run_full_pipeline, warm_cache)
 from diff_engine.config_differ import diff_config_files
