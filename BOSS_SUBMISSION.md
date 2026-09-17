@@ -10,15 +10,13 @@ Today, answering a question like "is it safe to upgrade Django from 4.2 to 5.0?"
 ## 2. Source
 
 - **Repository:** https://github.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence
-- **Implementation:**
+- **Implementation:** https://github.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence/commit/5d4bd51a117bd2eb963873d5cce14c37adc40913
 
 ---
 ## 3. Demo
-**MCP Client demo, Claude Code, attached as the agent inside BOSS**
-<video src="https://raw.githubusercontent.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence/main/demo/BOSS%20hackathon/BOSS_AI_MCP_Client_demo.mp4" controls width="600"></video>
+**MCP Client demo, Claude Code, attached as the agent inside BOSS**: See [MCP Client demo](demo/BOSS%20hackathon/BOSS_AI_MCP_Client_demo.mp4)
 
-**CLI demo, run directly in BOSS's terminal panel**
-<video src="https://raw.githubusercontent.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence/main/demo/BOSS%20hackathon/BOSS_CLI_demo.mp4" controls width="600"></video>
+**CLI demo, run directly in BOSS's terminal panel**: See [CLI demo](demo/BOSS%20hackathon/BOSS_CLI_demo.mp4)
 
 ---
 ## 4. Reproduction 
@@ -111,7 +109,9 @@ The agent calls the tools on its own and returns a scored, explained result.
 
 ---
 ## 9. Request
-
+- Feedback on the plugin's design and MCP tool set.
+- Confirmation this plugin ID doesn't collide with an existing plugin.
+- Guidance on the umbrella registration process.
 
 ---
 ## Further documentation
