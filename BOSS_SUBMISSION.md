@@ -110,8 +110,6 @@ The agent calls the tools on its own and returns a scored, explained result.
 ---
 ## 9. Request
 - Feedback on the plugin's design and MCP tool set.
-- Confirmation this plugin ID doesn't collide with an existing plugin.
-- Guidance on the umbrella registration process.
 
 ---
 ## Further documentation
