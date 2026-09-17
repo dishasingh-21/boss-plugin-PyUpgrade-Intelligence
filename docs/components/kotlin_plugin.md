@@ -11,4 +11,4 @@ Each tool's handler shells out to the Python engine as a subprocess, wrapped in 
 Needs one thing set up on the machine it runs on: an environment variable (`PYUPGRADE_ENGINE_PATH`) pointing at the PyUpgrade Intelligence engine's location, since a built plugin JAR has no way to find it on its own once installed.
 
 ## How to use it
-Build it, then install it into BOSS through Toolbox's "From File" option. Full build and install steps: `BOSS_SUBMISSION.md`.
+Build it, then install it into BOSS through Toolbox's "From File" option. Full build and install steps: [`BOSS_SUBMISSION.md`](../../BOSS_SUBMISSION.md).

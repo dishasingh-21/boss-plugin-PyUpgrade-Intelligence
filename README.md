@@ -17,8 +17,8 @@ PyUpgrade Intelligence builds a real semantic graph of a framework's source code
 - **Scoped to your code.** Out of hundreds of real changes in a framework release, you see only the ones that intersect with what you actually use.
 
 ## How it's delivered
-- **A BOSS plugin**: seven MCP tools an attached agent can call directly. See `docs/components/mcp-server.md` and `docs/components/kotlin-plugin.md`.
-- **A standalone CLI**: See `docs/components/cli.md`.
+- **A BOSS plugin**: seven MCP tools an attached agent can call directly. See [`docs/components/mcp-server.md`](docs/components/mcp_server.md) and [`docs/components/kotlin-plugin.md`](docs/components/kotlin_plugin.md).
+- **A standalone CLI**: See [`docs/components/cli.md`](docs/components/cli.md).
 - **A standalone MCP server**: usable with any MCP client (Claude Desktop, the MCP Inspector, etc.)
 
 ## Usage
@@ -92,7 +92,7 @@ flowchart TD
 
 - `context_graph_builder` parses a framework's real source into a graph - every function, class, and method, with signatures, async/property flags, and a structural fingerprint of each body - plus the calls, imports, and inheritance between them.
 - `diff_engine` and `usage_indexer` both read from that graph independently: one compares two versions structurally, the other scans the user's code for real usage, entirely on their machine.
-- `risk_scorer` joins the two, only symbols that are both changed and used matter, and scores them with a risk scoring model (Proof in `Risk-Scoring-Mathematical-Model.md`).
+- `risk_scorer` joins the two, only symbols that are both changed and used matter, and scores them with a risk scoring model.
 - `orchestrator` wires all of this into a handful of functions that the CLI and MCP server both call directly.
 
 ---
@@ -101,7 +101,7 @@ flowchart TD
 - **Want to understand a specific component?** See [`docs/components/`](docs/components/), which consists of one doc per component, covering what it is, and how it works.
 - **About the design decisions, deferred features, and known limitations** See [`PyUpgrade-Intelligence-Design.md`](PyUpgrade-Intelligence-Design.md).
 - **Want the exact CLI command reference?** See [`CLI-Specification.md`](CLI-Specification.md).
-- **For risk model's mathematical proofs** See [`Risk-Scoring-Mathematical-Model.md`](Risk-Scoring-Mathematical-Model.md).
+- **For risk scoring model** See [`Risk-Scoring-Mathematical-Model.md`](Risk-Scoring-Mathematical-Model.md).
 
 ## Data privacy
 None of your source code is ever sent anywhere. Usage analysis happens entirely on your own machine. The only network calls this tool makes are to PyPI, to fetch *public* framework source code and package metadata, nothing about your project, its files, or its contents is ever transmitted.

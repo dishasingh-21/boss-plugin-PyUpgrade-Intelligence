@@ -10,4 +10,4 @@ Built on the MCP Python SDK, exposing 7 tools, each a thin wrapper around an orc
 
 Validated at two levels: the MCP Inspector, confirming the protocol and tool schemas are correct; and a real connected AI assistant (Claude Desktop), confirming an actual agent uses the tools correctly and gets back a sensible result.
 
-Connect it to any MCP client by pointing that client at this script. See `docs/USER_GUIDE.md` for exact connection steps, including a real Claude Desktop config example.
+Connect it to any MCP client by pointing that client at this script. See [`USER_GUIDE.md`](../USER_GUIDE.md) for exact connection steps, including a real Claude Desktop config example.

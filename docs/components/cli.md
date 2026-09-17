@@ -8,4 +8,4 @@ Every command is a thin wrapper around one orchestrator function, argument parsi
 
 Nine commands total: `check`, `changes`, `usage`, `affected`, `config-diff`, `export`, `warm`, `cache list`, `cache clear`.
 
-Full command reference: `CLI-Specification.md`
+Full command reference: [`CLI-Specification.md`](../../CLI-Specification.md)

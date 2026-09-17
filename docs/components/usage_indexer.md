@@ -10,6 +10,6 @@ Walks every `.py` file in the given codebase and looks for:
 - Instantiating a framework class directly (treated as a usage of its constructor)
 Every match is resolved through the same public re-export logic the context graph builder uses.
 
-**Deliberately conservative.** If it can't confidently resolve a usage, it stays silent rather than guessing, a false alarm here would pollute the final risk report, which is worse than missing an indirect usage. See `PyUpgrade-Intelligence-Design.md` for the specific, real cases this misses and why.
+**Deliberately conservative.** If it can't confidently resolve a usage, it stays silent rather than guessing, a false alarm here would pollute the final risk report, which is worse than missing an indirect usage. See [`PyUpgrade-Intelligence-Design.md`](../../PyUpgrade-Intelligence-Design.md) for the specific, real cases this misses and why.
 
 Produces a fast result by default (just file and line), with an optional enriched pass adding the actual source line for each usage.
