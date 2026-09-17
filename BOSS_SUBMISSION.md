@@ -11,7 +11,7 @@ Today, answering a question like "is it safe to upgrade Django from 4.2 to 5.0?"
 
 - **Repository:** https://github.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence
 - **Implementation:** https://github.com/dishasingh-21/boss-plugin-PyUpgrade-Intelligence/commit/5d4bd51a117bd2eb963873d5cce14c37adc40913
-  
+
 ---
 ## 3. Demo
 **MCP Client demo, Claude Code, attached as the agent inside BOSS**: See [MCP Client demo](demo/BOSS%20hackathon/BOSS_AI_MCP_Client_demo.mp4)
