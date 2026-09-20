@@ -29,6 +29,14 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+### Run the automated test suite
+```bash
+cd engine
+python -m pytest
+```
+
+Expected: `61 passed` (no failures, no skips). Requires the Python engine setup from the steps above (venv activated, dependencies installed)
+
 ### Build the plugin
 ```bash
 cd ..\..
@@ -62,9 +70,12 @@ Launch BOSS, open **Toolbox**, confirm the plugin is enabled, then check **Toolb
 ### Minimal example task
 Attach an AI CLI (Claude Code, Codex, Gemini, or OpenCode) via **Toolbox → MCP → Attach CLI**. Open a terminal tab inside BOSS, start it (e.g. if you've attached Claude, start by activating it for this type - `claude`), and ask:
 
-> "Is it safe to upgrade Django from 4.2 to 5.0 for the project at `<path>`?"
+> "Is it safe to upgrade Django from 4.2 to 5.0 for the project at `../test_django_project`?"
 
-The agent calls the tools on its own and returns a scored, explained result.
+Expected result: It should produce a response including a numeric score, a recommendation (`UPGRADE`/`UPGRADE_WITH_CAUTION`/`HOLD`), and specific affected files with line numbers - e.g., for `test_django_project`: score 89/100, `HOLD`, driven by a removed symbol (`LocaleMiddleware.get_fallback_language`).
+
+### Note on infrastructure, separate from any test failure
+Building BOSS from source in dev mode requires local Supabase credentials not available to external contributors, which blocked that specific path and is not a defect in this plugin. Testing instead used the official released BOSS build.
 
 ---
 ## 5. Compatibility
