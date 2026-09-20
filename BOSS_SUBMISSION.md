@@ -14,9 +14,9 @@ Today, answering a question like "is it safe to upgrade Django from 4.2 to 5.0?"
 
 ---
 ## 3. Demo
-**MCP Client demo, Claude Code, attached as the agent inside BOSS**: See [MCP Client demo](demo/BOSS%20hackathon/BOSS_AI_MCP_Client_demo.mp4)
+**MCP Client demo, Claude Code, attached as the agent inside BOSS**: https://drive.google.com/drive/u/0/folders/1P5XlD8omfoCXIJFq-tUNC7Isv-qCTxGl
 
-**CLI demo, run directly in BOSS's terminal panel**: See [CLI demo](demo/BOSS%20hackathon/BOSS_CLI_demo.mp4)
+**CLI demo, run directly in BOSS's terminal panel**: https://drive.google.com/drive/u/0/folders/1OH834OVjMg9iMgg3wiT04bdMT-Sjkfc4
 
 ---
 ## 4. Reproduction 
