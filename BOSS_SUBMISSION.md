@@ -74,6 +74,8 @@ Attach an AI CLI (Claude Code, Codex, Gemini, or OpenCode) via **Toolbox → MCP
 
 Expected result: It should produce a response including a numeric score, a recommendation (`UPGRADE`/`UPGRADE_WITH_CAUTION`/`HOLD`), and specific affected files with line numbers - e.g., for `test_django_project`: score 89/100, `HOLD`, driven by a removed symbol (`LocaleMiddleware.get_fallback_language`).
 
+I would also suggest try running commands mentioned in [CLI-Specification.md](CLI-Specification.md) in the terminal.
+
 ### Note on infrastructure, separate from any test failure
 Building BOSS from source in dev mode requires local Supabase credentials not available to external contributors, which blocked that specific path and is not a defect in this plugin. Testing instead used the official released BOSS build.
 
