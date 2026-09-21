@@ -103,12 +103,12 @@ Building BOSS from source in dev mode requires local Supabase credentials not av
 
 **Also tested in following modes:** 
 
-| Level | What was tested                                                                                   | Result |
-|---|---------------------------------------------------------------------------------------------------|---|
-| Via CLI | Django 4.2 to 5.0, Flask, LiveKit Agents 1.5.1 to 1.8.1                                           | Django: 865 real changes found; a real risk score was hand-recalculated from the formula and matched exactly (89/100, `HOLD`). LiveKit Agents (a structurally different codebase) confirmed the design generalizes. |
-| MCP protocol | MCP Inspector                                                                                     | Tool schemas and protocol correctness confirmed |
-| AI MCP client, standalone | Claude Desktop                                                                                    | Real tool calls, correct results, independent of BOSS |
-| Full BOSS integration | Official BOSS release (not a dev build), installed via Toolbox, Claude Code attached as the agent | Plugin loaded correctly, all 7 MCP tools appeared correctly, and a plain-language question about a real Django upgrade was correctly answered end to end |
+| Level | What was tested                                                                                   | Result                                                                                                                                                                                                             |
+|---|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Via CLI | Django 4.2 to 5.0, Flask, LiveKit Agents 1.5.1 to 1.8.1                                           | Django: 804 real changes found; a real risk score was hand-recalculated from the formula and matched exactly (89/100, `HOLD`). LiveKit Agents (a structurally different codebase) confirmed the design generalizes. |
+| MCP protocol | MCP Inspector                                                                                     | Tool schemas and protocol correctness confirmed                                                                                                                                                                    |
+| AI MCP client, standalone | Claude Desktop                                                                                    | Real tool calls, correct results, independent of BOSS                                                                                                                                                              |
+| Full BOSS integration | Official BOSS release (not a dev build), installed via Toolbox, Claude Code attached as the agent | Plugin loaded correctly, all 7 MCP tools appeared correctly, and a plain-language question about a real Django upgrade was correctly answered end to end                                                           |
 
 **Known limitations:** Documented in [`PyUpgrade-Intelligence-Design.md`](PyUpgrade-Intelligence-Design.md).
 
